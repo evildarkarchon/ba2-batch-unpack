@@ -115,11 +115,13 @@ def determine_threshold():
 # Interactive prompts
 def choose_mod_folder():
     global threshold
-    print('Please choose your mod folder.\n')
+    print('Please choose your mod folder in the window that just popped up.')
     folder = filedialog.askdirectory(initialdir=os.getcwd(), mustexist=True, title='Please choose your mod folder')
     if folder == '':
+        print('Selection cancelled. Exiting now.')
         end()
     # Update the threshold accordingly after the folder change
+    print(f'Your selection: {folder}\n')
     if auto_threshold:
         populate_targets()
         threshold = determine_threshold()
@@ -205,6 +207,8 @@ def review_settings():
               f'Interactive: {interactive}\n')
 
         response = input('Is the above settings correct?\n'
+                         'NOTE: answering \"yes\" will begin extraction immediately. If you are unsure, '
+                         'please do a dry run to preview what files are to be extracted.\n'
                          '(Y)es, (n)o, (d)ry run, or (e)xit: ')
         if response == 'Y' or response == 'y' or response == '':
             return 'y'
@@ -236,7 +240,7 @@ def do_processing():
     populate_targets()
 
     if threshold == -1:
-        print('\nYou are under the ba2 limit (for now).\n'
+        print('\nYou appears to be under the ba2 limit (for now).\n'
               'If you want to extract anyways, please re-run the program and manually specify a threshold.')
         end()
 
@@ -295,7 +299,7 @@ print('=========================================================================
 process_ignored()
 
 if interactive:
-    print('Note: if at any point the program appears to be stuck, try re-entering your input again!')
+    print('Note: if at any point the program appears to be stuck, try entering your input again!')
     # Main CLI loop
     mod_path = choose_mod_folder()
     threshold = set_threshold()
