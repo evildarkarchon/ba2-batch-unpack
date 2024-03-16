@@ -1,0 +1,5 @@
+# Enter file names that should be ignored
+# One file per line
+# Example:
+# abcmod - main.ba2
+# xyzmod - main.ba2

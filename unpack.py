@@ -23,10 +23,11 @@ mod_path = ''
 
 # This should be a path to your bsab.exe
 # Example: D:/Tools/BSA Browser/bsab.exe
-bsab_exe_path = ''
+bsab_exe_path = './bsab/bsab.exe'
 
 # Threshold in bytes, any file larger than this will be ignored
 # Example: 5 * 1024 * 1024 (= 5 MB)
+# Set it to 'auto' to have it automatically determine the threshold
 threshold = 0
 
 # Process only files with the specified postfixes (case-insensitive)
@@ -81,7 +82,7 @@ except (FileNotFoundError, PermissionError, OSError) as e:
     print(f'Warning: error opening {ignored_txt}: {e}')
 
 
-def populate_targets(max_size):
+def populate_targets():
     global all_ba2_sorted
     all_ba2 = []
     for d in os.listdir(mod_path):
@@ -93,15 +94,10 @@ def populate_targets(max_size):
             fpath = os.path.join(full_path, ba2)
             # Add only *.ba2 archives and those smaller than the threshold (if supplied),
             # and that the archive is not ignored
-            if not max_size:
-                if (not ba2.lower() in ignored and
-                        any([postfix in ba2.lower() for postfix in postfixes])):
-                    all_ba2.append(fpath)
-            else:
-                if (not ba2.lower() in ignored and
-                        any([postfix in ba2.lower() for postfix in postfixes]) and
-                        os.stat(fpath).st_size <= threshold):
-                    all_ba2.append(fpath)
+            if (not ba2.lower() in ignored and
+                    any([postfix in ba2.lower() for postfix in postfixes]) and
+                    os.stat(fpath).st_size <= threshold):
+                all_ba2.append(fpath)
 
     all_ba2_sorted = sorted(all_ba2, key=lambda f: os.stat(f).st_size).reverse()
 
@@ -117,7 +113,7 @@ def choose_mod_folder():
     folder = filedialog.askdirectory(initialdir=os.getcwd(), mustexist=True, title='Please choose your mod folder')
     # Update the threshold accordingly after the folder change
     if auto_threshold:
-        populate_targets(None)
+        populate_targets()
         threshold = determine_threshold()
     return folder
 
@@ -131,7 +127,7 @@ def set_threshold():
 
     if thr == 'auto' or thr == '\"auto\"':
         auto_threshold = True
-        populate_targets(None)
+        populate_targets()
         return determine_threshold()
     auto_threshold = False
     return parse_size(thr)
@@ -209,7 +205,7 @@ def review_settings():
 def do_processing():
     total_files = 0
 
-    populate_targets(threshold)
+    populate_targets()
     for file in tqdm(all_ba2_sorted[235:]):
         base_path = os.path.dirname(file)
         backup_path = os.path.join(base_path, 'backup')
@@ -259,18 +255,26 @@ print('=========================================================================
 print('Welcome to Batch BA2 Unpacker by KazumaKuun')
 print('===========================================================================')
 
-# Main CLI loop
-mod_path = choose_mod_folder()
-threshold = set_threshold()
-postfixes = confirm_postfixes()
+if interactive:
+    # Main CLI loop
+    mod_path = choose_mod_folder()
+    threshold = set_threshold()
+    postfixes = confirm_postfixes()
 
-while True:
-    user_response = review_settings()
+    while True:
+        user_response = review_settings()
 
-    if user_response == 'y':
-        do_processing()
-        end()
-    elif user_response == 'd':
-        if dry_run():
+        if user_response == 'y':
             do_processing()
             end()
+        elif user_response == 'd':
+            if dry_run():
+                do_processing()
+                end()
+else:
+    print('Interactive mode is disabled. Proceeding with user-specified configuration.')
+    populate_targets()
+    if auto_threshold:
+        threshold = determine_threshold()
+    do_processing()
+    end()
