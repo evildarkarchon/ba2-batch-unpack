@@ -149,7 +149,7 @@ def set_threshold():
 
 def confirm_postfixes():
     global postfixes
-    post_ok = input(f'Are these file postfix ok? (Y/n)\n'
+    post_ok = input(f'\nAre these file postfix ok? (Y/n)\n'
                     f'{postfixes}\n')
     if not (post_ok == '' or post_ok == 'y' or post_ok == 'Y'):
         has_error = False
@@ -196,7 +196,7 @@ def correct_setting():
 
 def review_settings():
     while True:
-        print(f'\nSetup complete. Please review the following settings.\n'
+        print(f'Setup complete. Please review the following settings.\n'
               f'Mod folder path: {mod_path}\n'
               f'Extraction threshold: {int(threshold / 1024)} kB\n'
               f'File postfixes to extract: {postfixes}\n'
@@ -236,7 +236,7 @@ def do_processing():
     populate_targets()
 
     if threshold == -1:
-        print('You are under the ba2 limit (for now).\n'
+        print('\nYou are under the ba2 limit (for now).\n'
               'If you want to extract anyways, please re-run the program and manually specify a threshold.')
         end()
 
@@ -256,7 +256,7 @@ def do_processing():
         # Make a backup of the extracted file. Create the backup folder if not already existing
         if not os.path.exists(backup_path):
             os.mkdir(backup_path)
-        shutil.move(file, os.path.join(backup_path, file))
+        shutil.move(file, os.path.join(backup_path, os.path.basename(file)))
         total_files += 1
     print(f'\nDone! Processed {total_files} ba2 files.')
 
