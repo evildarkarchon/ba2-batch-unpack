@@ -129,13 +129,13 @@ def choose_mod_folder():
 def set_threshold():
     global auto_threshold
     print('What is the maximum size of ba2 file to extract? (e.g. 500kb, 3MB)\n'
-          'Type \"auto\" if you want to let the program automatically determine that for you\n'
+          'Type \"auto\" or hit Enter if you want to let the program automatically determine that for you\n'
           '(i.e. extract just enough archives to get below the ba2 limit).')
 
     while True:
-        thr = input('Threshold: ')
+        thr = input('Threshold (default: auto): ')
 
-        if thr == 'auto' or thr == '\"auto\"':
+        if thr == 'auto' or thr == '\"auto\"' or thr == '':
             auto_threshold = True
             populate_targets()
             return determine_threshold()
